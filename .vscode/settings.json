@@ -21,7 +21,8 @@
         "vector": "cpp",
         "locale": "cpp",
         "system_error": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "algorithm": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.default.intelliSenseMode": "clang-x64"
