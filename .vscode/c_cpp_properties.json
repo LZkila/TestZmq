@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "/Users/lzkila/soft/git/vcpkg/installed/x64-osx-dynamic/include/**",
+                "${workspaceFolder}/src/**"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -13,7 +14,8 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "vector-of-bool.cmake-tools"
+            // "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

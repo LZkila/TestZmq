@@ -20,9 +20,14 @@ include_directories(
     ${DIR_3RDPARTY}/include
 )
 
-find_package(ZeroMQ CONFIG REQUIRED)
-if(ZeroMQ_NOTFOUND)
-    message(WARNING "...zeromq not found")
+# find_package(ZeroMQ CONFIG REQUIRED)
+# if(ZeroMQ_NOTFOUND)
+#     message(WARNING "...zeromq not found")
+# endif()
+
+find_package(cppzmq CONFIG REQUIRED)
+if(cppzmq_NOTFOUND)
+    message(WARNING "...cppzmq not found")
 endif()
 
 find_package(glog CONFIG REQUIRED)
@@ -35,24 +40,39 @@ if(GTest_NOTFOUND)
     message(WARNING "...gtest not found")
 endif()
 
+find_package(msgpack CONFIG REQUIRED)
+if(msgpack_NOTFOUND)
+    message(WARNING "...msgpack not found")
+endif()
 
-file(GLOB FILE_TESTCPP ${DIR_SRC}/*.cpp)
+find_package(fmt CONFIG REQUIRED)
+if(fmt_NOTFOUND)
+    message(WARNING "...fmt not found")
+endif()
+
+file(GLOB FILE_TESTCPP ${DIR_SRC}/tests/*.cpp)
+file(GLOB FILE_ZMQ ${DIR_SRC}/zmq/*.cpp)
+source_group(tests FILES ${FILE_TESTCPP})
+source_group(zmq FILES ${FILE_ZMQ})
 add_executable(${APP_TESTCPP}
+    ${DIR_SRC}/main.cpp
     ${FILE_TESTCPP}
+    ${FILE_ZMQ}
     )
 
-# target_include_directories(${APP_TESTCPP}
-#     PRIVATE
-#     ${GTEST_INCLUDE_DIR}
-#     )
+target_include_directories(${APP_TESTCPP}
+    PRIVATE
+    ${DIR_SRC}
+    )
 
 target_link_libraries(${APP_TESTCPP}
     PRIVATE
     glog::glog
     GTest::gtest
     GTest::gmock
-    libzmq
-    ${ZeroMQ_LIBRARY}
+    cppzmq
+    msgpackc-cxx
+    fmt::fmt
     )
 
 enable_testing()
