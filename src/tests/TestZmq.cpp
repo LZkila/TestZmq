@@ -20,6 +20,16 @@ void RunZmqReqServer() {
     s.RunLoop();
 }
 
+void RunZmqSubClient() {
+    ZmqSubClient s(30005);
+    s.RunLoop();
+}
+
+void RunZmqPubServer() {
+    ZmqPubServer s(30005);
+    s.RunLoop();
+}
+
 TestZmq::TestZmq() {
 
 }
@@ -37,8 +47,8 @@ void TestZmq::TearDown() {
 }
 
 TEST_F(TestZmq, zmq) {
-    thread t1(RunZmqReqServer);
-    thread t2(RunZmqReqClient);
+    thread t1(RunZmqPubServer);
+    thread t2(RunZmqSubClient);
     t1.join();
     t2.join();
 }

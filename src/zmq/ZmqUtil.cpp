@@ -110,6 +110,12 @@ void ZmqRepServer::RunLoop() {
     }  
 }
 
+void ZmqRepServer::Init(const std::string &ip, int port) {
+    ctx_ = shared_ptr<zmq::context_t>(new zmq::context_t());
+    sock_ = shared_ptr<zmq::socket_t>(new zmq::socket_t(*ctx_, zmq::socket_type::rep));
+    sock_->bind(format("tcp://{}:{}", ip.empty() ? "127.0.0.1" : ip, port));
+}
+
 ZmqSubClient::ZmqSubClient(int port) {
     Init("", port);
 }
@@ -120,7 +126,7 @@ ZmqSubClient::ZmqSubClient(const std::string &ip, int port) {
 
 void ZmqSubClient::Init(const std::string &ip, int port) {
     ctx_ = shared_ptr<zmq::context_t>(new zmq::context_t());
-    sock_ = shared_ptr<zmq::socket_t>(new zmq::socket_t(*ctx_, zmq::socket_type::req));
+    sock_ = shared_ptr<zmq::socket_t>(new zmq::socket_t(*ctx_, zmq::socket_type::sub));
     sock_->connect(format("tcp://{}:{}", ip.empty() ? "127.0.0.1" : ip, port));
     SetSubType(0);
 }
@@ -132,6 +138,7 @@ void ZmqSubClient::SetHandler(const FUNC_ZMQ_PUB_DATA_HANDLER &handler) {
 void ZmqSubClient::RunLoop() {
     assert(sock_);
     while (true) {
+        LOG(INFO) << "lz3 client begin";
         zmq::message_t recvmsg;
         try {
             sock_->recv(recvmsg);
@@ -157,16 +164,9 @@ void ZmqSubClient::RunLoop() {
 void ZmqSubClient::SetSubType(int type) {
     assert(sock_);
     type_ = type;
-    // sock_->set(zmq::sockopt())
-    // sock_->setsockopt(ZMQ_SUBSCRIBE, type_); // TODO
+    sock_->set(zmq::sockopt::subscribe, "");
+    // sock_->set(zmq::sockopt::subscribe, to_string(type_));
 }
-
-void ZmqRepServer::Init(const std::string &ip, int port) {
-    ctx_ = shared_ptr<zmq::context_t>(new zmq::context_t());
-    sock_ = shared_ptr<zmq::socket_t>(new zmq::socket_t(*ctx_, zmq::socket_type::rep));
-    sock_->bind(format("tcp://{}:{}", ip.empty() ? "127.0.0.1" : ip, port));
-}
-
 
 ZmqPubServer::ZmqPubServer(int port) {
     Init("", port);
@@ -186,7 +186,9 @@ void ZmqPubServer::RunLoop() {
         msgpack::pack(buf, src);
         zmq::message_t msg(buf.str());
         try {
+            LOG(INFO) << "server send";
             sock_->send(msg, zmq::send_flags::none);
+            this_thread::sleep_for(chrono::seconds(1));
         } catch (zmq::error_t e) {
             LOG(WARNING) << "zmq send failed:" << e.what();
             continue;
